@@ -28,7 +28,7 @@ CREATE TABLE ExampleTable
 GO
 
 DECLARE @counter INT = 1
-DECLARE @rowCount INT = 10000
+DECLARE @rowCount INT = 100
 
 WHILE @counter <= @rowCount
 BEGIN
@@ -43,3 +43,12 @@ BEGIN
     SET @counter = @counter + 1
 END
 GO
+
+PRINT 'sys.sp_cdc_enable_table'
+EXEC sys.sp_cdc_enable_table
+    @source_schema = 'dbo',
+    @source_name   = 'ExampleTable',
+    @role_name     = NULL,
+    @supports_net_changes = 1
+GO
+

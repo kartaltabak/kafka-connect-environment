@@ -1,0 +1,25 @@
+{
+  "name": "sqlserver-source-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
+    "tasks.max": "1",
+    "topic.prefix": "topic-prefix",
+    "topic.creation.default.replication.factor": 1,
+    "topic.creation.default.partitions": 12,
+    "topic.creation.default.cleanup.policy": "delete",
+    "database.user": "sa",
+    "database.names": "EKT",
+    "database.hostname": "sqlserver",
+    "database.port": "1433",
+    "database.password": "password1!",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.ekt",
+    "database.trustServerCertificate": "true",
+    "table.include.list": "dbo.ExampleTable",
+    "snapshot.mode": "initial",
+    "snapshot.isolation.mode": "read_committed",
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "errors.max.retries": "0"
+  }
+}

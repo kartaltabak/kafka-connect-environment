@@ -104,6 +104,7 @@ services:
         condition: service_healthy
     ports:
       - "8083:8083"
+      - "12345:12345"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
@@ -132,6 +133,17 @@ services:
       timeout: 5s
       retries: 60
       start_period: 3s
+
+  connect-config:
+    build:
+      context: connect-config
+      dockerfile: Dockerfile
+    container_name: connect-config
+    depends_on:
+      connect:
+        condition: service_healthy
+    networks:
+      - kafka
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.5.3
@@ -171,7 +183,6 @@ services:
     build:
       context: kafkaui
       dockerfile: Dockerfile
-    image: provectuslabs/kafka-ui
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
       DYNAMIC_CONFIG_PATH: /kafkauidata/dynamic_config.yaml
@@ -193,6 +204,25 @@ services:
       kafka:
     healthcheck:
       test: "curl -f http://localhost:8080"
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 3s
+
+  prometheus:
+    container_name: prometheus
+    build:
+      context: prometheus
+      dockerfile: Dockerfile
+    ports:
+      - "9190:9090"
+    depends_on:
+      connect:
+        condition: service_healthy
+    networks:
+      kafka:
+    healthcheck:
+      test: "curl -f http://localhost:9090/-/ready"
       interval: 10s
       timeout: 5s
       retries: 60
