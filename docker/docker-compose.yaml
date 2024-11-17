@@ -13,7 +13,7 @@ services:
     networks:
       - kafka
     healthcheck:
-      test: "/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P password1! -C -Q 'SELECT 1'"
+      test: "[ -f /tmp/init_done ] && /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P password1! -C -Q 'SELECT 1'"
       interval: 1s
       timeout: 5s
       retries: 60

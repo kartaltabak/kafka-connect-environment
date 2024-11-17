@@ -22,4 +22,6 @@ echo "Running initialization script..."
 ${SQLCMD} -i /scripts/init.sql || exit 1
 echo "Initialization completed."
 
+touch /tmp/init_done
+
 wait
