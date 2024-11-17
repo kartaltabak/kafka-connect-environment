@@ -105,6 +105,7 @@ services:
     ports:
       - "8083:8083"
       - "12345:12345"
+      - "12346:12346"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
       CONNECT_REST_ADVERTISED_HOST_NAME: connect

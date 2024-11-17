@@ -14,6 +14,8 @@ RUN mkdir /app &&  \
 
 WORKDIR /app
 
+COPY prometheus.yml /app/prometheus.yml
+
 CMD ["./prometheus", "--config.file=prometheus.yml"]
 
 EXPOSE 9090
