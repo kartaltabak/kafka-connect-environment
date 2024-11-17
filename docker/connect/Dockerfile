@@ -3,11 +3,18 @@ FROM confluentinc/cp-kafka-connect:7.5.3
 RUN confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest && \
     confluent-hub install --no-prompt debezium/debezium-connector-sqlserver:latest
 
-COPY jmx_prometheus_javaagent-1.0.1.jar /etc/kafka-connect/jars/jmx_prometheus_javaagent.jar
+ARG AGENT_MAVEN_PATH=https://repo.maven.apache.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent
+ARG AGENT_JAR_PATH=/etc/kafka-connect/jars/jmx_prometheus_javaagent.jar
+ARG EXPORTER_CONFIG_PATH=/etc/kafka/jmx_exporter.yaml
 
-COPY --chown=appuser:root jmx_exporter.yaml /etc/kafka/
+RUN LATEST_AGENT=$( \
+        curl -s ${AGENT_MAVEN_PATH}/maven-metadata.xml \
+        | xmllint --xpath "string(//metadata/versioning/latest)" - \
+    ) && \
+    curl --location --output ${AGENT_JAR_PATH} \
+      ${AGENT_MAVEN_PATH}/${LATEST_VERSION}/jmx_prometheus_javaagent-${LATEST_VERSION}.jar
 
-#ENV KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -javaagent:/etc/kafka-connect/jars/jmx_prometheus_javaagent.jar=12345:/etc/kafka/jmx_exporter.yaml"
+COPY --chown=appuser:root jmx_exporter.yaml ${EXPORTER_CONFIG_PATH}
 
 ENV KAFKA_JMX_OPTS=""
 ENV KAFKA_JMX_OPTS="${KAFKA_JMX_OPTS} -Dcom.sun.management.jmxremote"
@@ -16,7 +23,7 @@ ENV KAFKA_JMX_OPTS="${KAFKA_JMX_OPTS} -Dcom.sun.management.jmxremote.port=12345"
 ENV KAFKA_JMX_OPTS="${KAFKA_JMX_OPTS} -Dcom.sun.management.jmxremote=true"
 ENV KAFKA_JMX_OPTS="${KAFKA_JMX_OPTS} -Dcom.sun.management.jmxremote.authenticate=false"
 ENV KAFKA_JMX_OPTS="${KAFKA_JMX_OPTS} -Dcom.sun.management.jmxremote.ssl=false"
-ENV KAFKA_JMX_OPTS="${KAFKA_JMX_OPTS} -javaagent:/etc/kafka-connect/jars/jmx_prometheus_javaagent.jar=12346:/etc/kafka/jmx_exporter.yaml"
+ENV KAFKA_JMX_OPTS="${KAFKA_JMX_OPTS} -javaagent:${AGENT_JAR_PATH}=12346:${EXPORTER_CONFIG_PATH}"
 
 
 
